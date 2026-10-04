@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Ứng dụng dự báo thời tiết hiện đại theo phong cách Material You">
+  <title>Weather</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+<body data-weather="clear" data-time="day">
+
+  <!-- ============ HEADER ============ -->
+  <header class="app-header sticky-top">
+    <div class="container-xl">
+      <div class="header-grid">
+        <a class="brand" href="#" aria-label="Weather">
+          <i class="bi bi-cloud-sun-fill"></i><span>Weather</span>
+        </a>
+
+        <form id="searchForm" class="search-box" role="search" autocomplete="off">
+          <i class="bi bi-search search-icon"></i>
+          <input id="searchInput" type="search" class="form-control" placeholder="Tìm thành phố… (Hà Nội, Tokyo…)" aria-label="Tìm thành phố" maxlength="80">
+          <button id="searchBtn" type="submit" class="btn btn-search">Tìm</button>
+        </form>
+
+        <div class="header-actions">
+          <button id="locationBtn" type="button" class="btn btn-tonal" title="Dùng vị trí của tôi">
+            <i class="bi bi-geo-alt-fill"></i><span class="d-none d-xl-inline">Use my location</span>
+          </button>
+          <div class="unit-toggle" role="group" aria-label="Đơn vị nhiệt độ">
+            <button type="button" data-unit="metric" class="active">°C</button>
+            <button type="button" data-unit="imperial">°F</button>
+          </div>
+          <button id="themeBtn" type="button" class="btn btn-tonal btn-round" title="Chuyển sáng/tối" aria-label="Chuyển giao diện sáng/tối">
+            <i class="bi bi-moon-stars-fill"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ MAIN ============ -->
+  <main class="container-xl py-4">
+
+    <div id="alertBox" aria-live="assertive"></div>
+
+    <!-- Recent searches -->
+    <section id="recentSection" class="recent-section" hidden aria-label="Recent searches">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <h2 class="section-title mb-0"><i class="bi bi-clock-history"></i> Recent searches</h2>
+        <button id="clearRecentBtn" type="button" class="btn btn-text btn-sm">Xóa</button>
+      </div>
+      <div id="recentList" class="chip-row"></div>
+    </section>
+
+    <!-- Empty state -->
+    <section id="emptyState" class="empty-state" hidden>
+      <div class="empty-icon"><i class="bi bi-cloud-haze2"></i></div>
+      <h2>Chưa có dữ liệu thời tiết</h2>
+      <p>Hãy tìm một thành phố hoặc dùng vị trí hiện tại của bạn.</p>
+      <div class="chip-row justify-content-center">
+        <button class="chip" data-city="Hà Nội">Hà Nội</button>
+        <button class="chip" data-city="Hồ Chí Minh">Hồ Chí Minh</button>
+        <button class="chip" data-city="Biên Hòa">Biên Hòa</button>
+        <button class="chip" data-city="Tokyo">Tokyo</button>
+        <button class="chip" data-city="Seoul">Seoul</button>
+        <button class="chip" data-city="London">London</button>
+        <button class="chip" data-city="New York">New York</button>
+      </div>
+    </section>
+
+    <!-- Weather content -->
+    <div id="content" hidden>
+
+      <!-- Hero -->
+      <section class="hero-card" aria-live="polite">
+        <div class="hero-top">
+          <div>
+            <p class="hero-place"><i class="bi bi-geo-alt-fill"></i> <span id="cityName" class="skel">--</span></p>
+            <p id="localTime" class="hero-time skel">--</p>
+          </div>
+          <span id="weatherDesc" class="hero-chip skel">--</span>
+        </div>
+
+        <div class="hero-main">
+          <div>
+            <div id="heroTemp" class="hero-temp skel" data-c="">--</div>
+            <p class="hero-sub">
+              <span class="skel">Cảm giác như <b id="heroFeels" data-c="">--</b></span>
+              <span class="dot">•</span>
+              <span class="skel"><i class="bi bi-arrow-down"></i><b id="heroMin" data-c="">--</b>
+                <i class="bi bi-arrow-up ms-2"></i><b id="heroMax" data-c="">--</b></span>
+            </p>
+          </div>
+          <div class="hero-icon skel-box"><img id="weatherIcon" alt="" width="160" height="160"></div>
+        </div>
+
+        <div class="hero-stats">
+          <div class="stat"><i class="bi bi-droplet-half"></i><span class="label">Độ ẩm</span><b id="heroHumidity" class="skel">--</b></div>
+          <div class="stat"><i class="bi bi-wind"></i><span class="label">Gió</span><b id="heroWind" class="skel">--</b></div>
+          <div class="stat"><i class="bi bi-speedometer2"></i><span class="label">Áp suất</span><b id="heroPressure" class="skel">--</b></div>
+          <div class="stat"><i class="bi bi-eye"></i><span class="label">Tầm nhìn</span><b id="heroVisibility" class="skel">--</b></div>
+          <div class="stat"><i class="bi bi-sunrise"></i><span class="label">Mặt trời mọc</span><b id="heroSunrise" class="skel">--</b></div>
+          <div class="stat"><i class="bi bi-sunset"></i><span class="label">Mặt trời lặn</span><b id="heroSunset" class="skel">--</b></div>
+        </div>
+      </section>
+
+      <!-- Hourly -->
+      <section class="mt-4" aria-label="Dự báo theo giờ">
+        <h2 class="section-title"><i class="bi bi-clock"></i> Dự báo theo giờ</h2>
+        <div id="hourlyList" class="hourly-scroll"></div>
+      </section>
+
+      <!-- Daily -->
+      <section class="mt-4" aria-label="Dự báo 5 ngày">
+        <h2 class="section-title"><i class="bi bi-calendar3"></i> Dự báo 5 ngày</h2>
+        <div id="dailyList" class="row g-3 daily-row"></div>
+      </section>
+
+      <!-- Details -->
+      <section class="mt-4" aria-label="Thông tin bổ sung">
+        <h2 class="section-title"><i class="bi bi-grid-1x2"></i> Thông tin bổ sung</h2>
+        <div class="row g-3">
+          <div class="col-6 col-md-4 col-xl-3"><article class="info-card">
+            <div class="info-head"><i class="bi bi-droplet-half"></i> Độ ẩm</div>
+            <div id="dHumidity" class="info-value skel">--</div>
+            <div class="info-bar"><span id="dHumidityBar"></span></div>
+            <p id="dHumidityNote" class="info-note skel">--</p>
+          </article></div>
+
+          <div class="col-6 col-md-4 col-xl-3"><article class="info-card">
+            <div class="info-head"><i class="bi bi-wind"></i> Gió</div>
+            <div id="dWind" class="info-value skel">--</div>
+            <p class="info-note"><i id="dWindArrow" class="bi bi-arrow-up-circle-fill wind-arrow"></i> <span id="dWindNote" class="skel">--</span></p>
+          </article></div>
+
+          <div class="col-6 col-md-4 col-xl-3"><article class="info-card">
+            <div class="info-head"><i class="bi bi-speedometer2"></i> Áp suất</div>
+            <div id="dPressure" class="info-value skel">--</div>
+            <p id="dPressureNote" class="info-note skel">--</p>
+          </article></div>
+
+          <div class="col-6 col-md-4 col-xl-3"><article class="info-card">
+            <div class="info-head"><i class="bi bi-eye"></i> Tầm nhìn</div>
+            <div id="dVisibility" class="info-value skel">--</div>
+            <p id="dVisibilityNote" class="info-note skel">--</p>
+          </article></div>
+
+          <div class="col-6 col-md-4 col-xl-3"><article class="info-card">
+            <div class="info-head"><i class="bi bi-brightness-high"></i> Chỉ số UV</div>
+            <div id="dUv" class="info-value skel">--</div>
+            <p id="dUvNote" class="info-note skel">--</p>
+          </article></div>
+
+          <div class="col-6 col-md-4 col-xl-3"><article class="info-card">
+            <div class="info-head"><i class="bi bi-clouds"></i> Mây</div>
+            <div id="dClouds" class="info-value skel">--</div>
+            <div class="info-bar"><span id="dCloudsBar"></span></div>
+            <p id="dCloudsNote" class="info-note skel">--</p>
+          </article></div>
+
+          <div class="col-6 col-md-4 col-xl-3"><article class="info-card">
+            <div class="info-head"><i class="bi bi-thermometer-half"></i> Cảm giác như</div>
+            <div id="dFeels" class="info-value skel" data-c="">--</div>
+            <p id="dFeelsNote" class="info-note skel">--</p>
+          </article></div>
+
+          <div class="col-6 col-md-4 col-xl-3"><article class="info-card">
+            <div class="info-head"><i class="bi bi-sun"></i> Mặt trời</div>
+            <div id="dSun" class="info-value info-value-sm skel">--</div>
+            <p class="info-note skel" id="dSunNote">--</p>
+          </article></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <small>Dữ liệu từ <a href="https://openweathermap.org/" target="_blank" rel="noopener">OpenWeatherMap</a></small>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="script.js" defer></script>
+</body>
+</html>
